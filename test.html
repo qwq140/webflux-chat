@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div>
+      <textarea id="chat-area" cols="100" rows="20"></textarea>
+    </div>
+    <div>
+      <input type="text" id="user" size="10" />
+      <input type="text" id="content" size="60" />
+      <button type="button" id="btn-add">chat</button>
+    </div>
+    <script>
+      const eventSource = new EventSource("http://localhost:8080/sse");
+      eventSource.onmessage = (event) => {
+        console.log(event.data);
+        let area_el = document.querySelector("#chat-area");
+        area_el.value += event.data + "\n";
+      };
+      eventSource.onerror = (error) => {
+        eventSource.close();
+      };
+
+      $("#btn-add").on("click", (e) => {
+        let username = $("#user").val();
+        let content = $("#content").val();
+
+        let content_el = document.querySelector("#content");
+        content_el.value = "";
+
+        $.ajax({
+          type: "GET",
+          url:
+            "http://localhost:8080/send?username=" +
+            username +
+            "&content=" +
+            content,
+        });
+      });
+    </script>
+  </body>
+</html>
